@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -13,6 +14,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private static Arma escudo=new Arma("escudo",R.drawable.escudo);
     private static Pocion pocion=new Pocion("Poción de aumento de vida",R.drawable.pocion,true);
     private static Alimento pan=new Alimento("Pan",25);
-    private static final Object[] items=new Object[]{hacha,espada,escudo,pocion,pan,hacha,espada,escudo,pocion,pan};
+    private static final Object[] items=new Object[]{pocion,pan,hacha,espada,escudo,pocion,pan};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,44 +40,74 @@ public class MainActivity extends AppCompatActivity {
         public IconAdapter(Context context, int resource, int textViewResourceId, T[] objects) {
             super(context, resource, textViewResourceId, objects);
         }
-        
         @Override
-        public View getView(int position, View convertView, ViewGroup parent){
-            View row = convertView;
-            ViewHolderArma holder;
+        public View getView(int position, View convertView,ViewGroup parent){
+            View row=convertView;
+            ViewHolderArma viewHolderArma=null;
+            ViewHolderPocion viewHolderPocion=null;
+            ViewHolderAlimento viewHolderAlimento=null;
+            TextView lab,lab2;
+            ImageView img;
+            RadioGroup rdg;
+            Button btn;
+            Arma arma;
+            Pocion pocion;
+            Alimento alimento;
+            int itemViewType=getItemViewType(position);
             if (row==null){
-                row=rowInflate(position,parent);
+                row=rowInflate(position,parent,itemViewType);
+                if(itemViewType==1) {
+                    lab=row.findViewById(R.id.label);
+                    img=row.findViewById(R.id.icon);
+                    viewHolderArma=new ViewHolderArma(lab,img);
+                    row.setTag(viewHolderArma);
+                }else if(itemViewType>1){
+                    lab=row.findViewById(R.id.label);
+                    img=row.findViewById(R.id.icon);
+                    rdg=row.findViewById(R.id.rdgEquip);
+                    viewHolderPocion=new ViewHolderPocion(lab,img,rdg);
+                    row.setTag(viewHolderPocion);
+                }else{
+                    lab=row.findViewById(R.id.label);
+                    btn=row.findViewById(R.id.btnAdd);
+                    lab2=row.findViewById(R.id.label2);
+                    viewHolderAlimento=new ViewHolderAlimento(lab,btn,lab2);
+                    row.setTag(viewHolderAlimento);
+                }
             }
             else{
-                holder = (ViewHolder) row.getTag();
+                if(itemViewType==1) {
+                    viewHolderArma = (ViewHolderArma) row.getTag();
+                }else if(itemViewType>1){
+                    viewHolderPocion = (ViewHolderPocion) row.getTag();
+                }else{
+                    viewHolderAlimento = (ViewHolderAlimento) row.getTag();
+                }
             }
-            holder.getLab().setText(items[position].getNombre());
-            holder.getImgV().setImageResource(items[position].getIdFoto());
-            return row;
+            if(itemViewType==1) {
+                arma=(Arma)items[position];
+                viewHolderArma.getLab().setText(arma.getNombre());
+            }else if(itemViewType>1){
+                pocion=(Pocion)items[position];
+                viewHolderPocion.getLab().setText(pocion.getNombre());
+                if(itemViewType==2){
+                    viewHolderPocion.getEqu().check(R.id.rdgEquip);
+                }else{
+                    viewHolderPocion.getEqu().check(R.id.rdbUnequip);
+                }
+            }else{
+                alimento=(Alimento)items[position];
+                viewHolderAlimento.getLab().setText(alimento.getNombre());
+                viewHolderAlimento.getLab2().setText(alimento.getCantdad());
+            }
+            return  row;
         }
-        public View rowInflate(int position,ViewGroup parent){
+        public View rowInflate(int position,ViewGroup parent,int itemViewType){
             View row;
-            ViewHolderArma armaHolder;
-            TextView lab;
-            ImageView imgV;
-            RadioGroup equ;
-            int itemViewType=getItemViewType(position);
-            if(itemViewType==1){
+            if(itemViewType==1) {
                 row=getLayoutInflater().inflate(R.layout.row1, parent, false);
-                lab=row.findViewById(R.id.label);
-                imgV=row.findViewById(R.id.icon);
-                armaHolder=new ViewHolderArma(lab,imgV);
             }else if(itemViewType>1){
                 row=getLayoutInflater().inflate(R.layout.row2, parent, false);
-                lab=row.findViewById(R.id.label);
-                imgV=row.findViewById(R.id.icon);
-                equ=row.findViewById(R.id.rdgEquip);
-                if(itemViewType==2){
-                    equ.check(R.id.rdbEquip);
-                }else{
-                    equ.check(R.id.rdbUnequip);
-                }
-
             }else{
                 row=getLayoutInflater().inflate(R.layout.row3, parent, false);
             }
@@ -134,5 +167,29 @@ public class MainActivity extends AppCompatActivity {
         public RadioGroup getEqu() {
             return equ;
         }
+    }
+
+    class ViewHolderAlimento{
+        TextView lab;
+        Button btn;
+        TextView lab2;
+
+        ViewHolderAlimento(TextView lab,Button btn,TextView lab2){
+            this.lab = lab;
+            this.btn = btn;
+            this.lab2 = lab2;
+        }
+        public TextView getLab (){
+            return this.lab;
+        }
+
+        public Button getBtn (){
+            return this.btn;
+        }
+
+        public TextView getLab2() {
+            return this.lab2;
+        }
+
     }
 }
