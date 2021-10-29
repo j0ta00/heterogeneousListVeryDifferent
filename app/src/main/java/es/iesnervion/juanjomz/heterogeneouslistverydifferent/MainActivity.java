@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -13,9 +14,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -25,21 +29,41 @@ public class MainActivity extends AppCompatActivity {
     private static Arma escudo=new Arma("escudo",R.drawable.escudo);
     private static Pocion pocion=new Pocion("Poción de aumento de vida",R.drawable.pocion,true);
     private static Alimento pan=new Alimento("Pan",25);
-    private static final Object[] items=new Object[]{pocion,pan,hacha,espada,escudo,pocion,pan};
+    private static final Object[] items=new Object[]{pocion,pan,escudo,espada};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ListView ls=findViewById(R.id.lista);
-        ls.setAdapter(new IconAdapter<Object>(this, R.layout.row1, R.id.label, items));
+        ls.setAdapter(new IconAdapter<Object>(this,items));
 
 
-    }public class IconAdapter<T>  extends ArrayAdapter<T> {
+    }public class IconAdapter<T> extends BaseAdapter {
+        Context context;
+        Object[] datosLista;
 
-        public IconAdapter(Context context, int resource, int textViewResourceId, T[] objects) {
-            super(context, resource, textViewResourceId, objects);
+        public IconAdapter(@NonNull Context context, @NonNull Object[] objects) {
+            this.context= context;
+            //this.resource=resource;
+            datosLista=objects;
         }
+
+        @Override
+        public int getCount() {
+            return datosLista.length;
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return datosLista[i];
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return datosLista[i].hashCode();
+        }
+
         @Override
         public View getView(int position, View convertView,ViewGroup parent){
             View row=convertView;
@@ -62,15 +86,15 @@ public class MainActivity extends AppCompatActivity {
                     viewHolderArma=new ViewHolderArma(lab,img);
                     row.setTag(viewHolderArma);
                 }else if(itemViewType>1){
-                    lab=row.findViewById(R.id.label);
-                    img=row.findViewById(R.id.icon);
+                    lab=row.findViewById(R.id.labelRow2);
+                    img=row.findViewById(R.id.iconRow2);
                     rdg=row.findViewById(R.id.rdgEquip);
                     viewHolderPocion=new ViewHolderPocion(lab,img,rdg);
                     row.setTag(viewHolderPocion);
                 }else{
-                    lab=row.findViewById(R.id.label);
+                    lab=row.findViewById(R.id.labelRow3);
                     btn=row.findViewById(R.id.btnAdd);
-                    lab2=row.findViewById(R.id.label2);
+                    lab2=row.findViewById(R.id.label2Row3);
                     viewHolderAlimento=new ViewHolderAlimento(lab,btn,lab2);
                     row.setTag(viewHolderAlimento);
                 }
@@ -87,9 +111,11 @@ public class MainActivity extends AppCompatActivity {
             if(itemViewType==1) {
                 arma=(Arma)items[position];
                 viewHolderArma.getLab().setText(arma.getNombre());
+                viewHolderArma.getImgV().setImageResource(arma.getIdFoto());
             }else if(itemViewType>1){
                 pocion=(Pocion)items[position];
                 viewHolderPocion.getLab().setText(pocion.getNombre());
+                viewHolderPocion.getImgV().setImageResource(pocion.getFoto());
                 if(itemViewType==2){
                     viewHolderPocion.getEqu().check(R.id.rdgEquip);
                 }else{
@@ -98,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 alimento=(Alimento)items[position];
                 viewHolderAlimento.getLab().setText(alimento.getNombre());
-                viewHolderAlimento.getLab2().setText(alimento.getCantdad());
+                viewHolderAlimento.getLab2().setText(String.valueOf(alimento.getCantdad()));
             }
             return  row;
         }
