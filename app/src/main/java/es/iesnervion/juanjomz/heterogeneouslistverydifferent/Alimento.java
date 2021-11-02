@@ -24,4 +24,12 @@ public class Alimento{
     public void setCantdad(int cantdad) {
         this.cantdad = cantdad;
     }
+
+    @Override
+    public String toString() {
+        return "Alimento{" +
+                "nombre='" + nombre + '\'' +
+                ", cantdad=" + cantdad +
+                '}';
+    }
 }

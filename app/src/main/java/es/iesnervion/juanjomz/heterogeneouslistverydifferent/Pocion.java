@@ -34,4 +34,13 @@ public class Pocion{
     public void setEquipado(boolean equipado) {
         this.equipado = equipado;
     }
+
+    @Override
+    public String toString() {
+        return "Pocion{" +
+                "nombre='" + nombre + '\'' +
+                ", foto=" + foto +
+                ", equipado=" + equipado +
+                '}';
+    }
 }
